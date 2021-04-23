@@ -7,6 +7,7 @@
 pino.log
 *.log
 /anotherDir
+.idea
 # Logs
 logs
 *.log

@@ -4,32 +4,25 @@ import { AppService } from './app.service';
 import { v4 as uuid } from 'uuid';
 import { LoggerModule } from 'nestjs-pino';
 import pino from 'pino';
-import * as path from 'path';
-import * as fs from 'fs';
-
-function getLogDir() {
-  const logPath = path.join(__dirname, '../log/');
-  console.log('logPath in AppModule.ts', logPath);
-  const rootDir = path.join(__dirname, './..');
-  const logDir = path.join(rootDir, 'log');
-  fs.existsSync(logDir) || fs.mkdirSync(logDir);
-  return logDir;
-}
 
 @Module({
   imports: [
-    LoggerModule.forRoot({
-      pinoHttp: [
-        {
-          useLevel: 'info',
-          genReqId: () => uuid(),
-          prettyPrint: {
-            translateTime: true,
-            singleLine: true,
+    LoggerModule.forRootAsync({
+      useFactory: () => ({
+        pinoHttp: [
+          {
+            genReqId: () => uuid(),
+            prettyPrint: {
+              translateTime: true,
+              singleLine: false,
+              colorize: false,
+              messageFormat: `{pid} - reqId:{req.id} - url:{req.url} - message:{msg}`,
+              hideObject: true,
+            },
           },
-        },
-        pino.destination(getLogDir() + 'app.log'),
-      ],
+          pino.destination('./log/app.log'),
+        ],
+      }),
     }),
   ],
   controllers: [AppController],
